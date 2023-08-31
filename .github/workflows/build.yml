@@ -27,4 +27,8 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyPatches
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew createReobfBundlerJar
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Folia Build
+          path: build/libs/*

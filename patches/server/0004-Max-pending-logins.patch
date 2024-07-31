@@ -6,30 +6,30 @@ Subject: [PATCH] Max pending logins
 Should help the floodgates on launch
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-index 2e96377d628b3a07fb565020074d665f594f32e8..75b1877f8c3e4da3183437f327ef3376fd0a3c21 100644
+index 734f745ce383c8398fdedeb6fd71277e1482a4a6..83b09feec13a00c35e6f8d4f0ccdae1c8da9c0e5 100644
 --- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
-@@ -85,7 +85,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
-             UUID uniqueId = UUIDUtil.getOrCreatePlayerUUID(this.gameProfile);
+@@ -110,7 +110,7 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
              if (this.server.getPlayerList().pushPendingJoin(name, uniqueId, this.connection)) {
-                 this.handleAcceptedLogin();
--            }
-+            } else { --this.tick; } // Folia - max concurrent logins
              // Folia end - region threading - rewrite login process
-         } // Folia - region threading - remove delayed accept
+             this.verifyLoginAndFinishConnectionSetup((GameProfile) Objects.requireNonNull(this.authenticatedProfile));
+-            } // Paper - prevent logins to be processed even though disconnect was called
++            } else { --this.tick; } // Paper - prevent logins to be processed even though disconnect was called // Folia - max concurrent logins
+         }
  
+         // CraftBukkit start
 diff --git a/src/main/java/net/minecraft/server/players/PlayerList.java b/src/main/java/net/minecraft/server/players/PlayerList.java
-index 82c7235ad9f4bc4a9f6e018c9905d49790396918..1f70b0810ab992851662fe27c7522bc9eabf5f5f 100644
+index 67b832c9a36f8af245e381c7fa3c56a7e9becd1e..db2903276c694d395f62afdc7c71344466ae505f 100644
 --- a/src/main/java/net/minecraft/server/players/PlayerList.java
 +++ b/src/main/java/net/minecraft/server/players/PlayerList.java
-@@ -180,6 +180,17 @@ public abstract class PlayerList {
+@@ -175,6 +175,17 @@ public abstract class PlayerList {
              conflictingId = this.connectionById.get(byId);
  
              if (conflictingName == null && conflictingId == null) {
 +                // Folia start - max concurrent login
 +                int loggedInCount = 0;
 +                for (Connection value : this.connectionById.values()) {
-+                    if (value.isPlayerConnected()) {
++                    if (value.getPacketListener() instanceof ServerGamePacketListenerImpl) {
 +                        ++loggedInCount;
 +                    }
 +                }

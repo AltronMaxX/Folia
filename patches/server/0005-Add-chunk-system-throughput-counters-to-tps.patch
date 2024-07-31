@@ -5,7 +5,7 @@ Subject: [PATCH] Add chunk system throughput counters to /tps
 
 
 diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkFullTask.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkFullTask.java
-index 300700477ee34bc22b31315825c0e40f61070cd5..0b78d1eb90500e0123b7281d722805dc65d551d0 100644
+index c307b084f59f7bb94dc02f25bbcd3e01e01d2306..b53d15a3979f42cb1b9a4cba24147c32f9a1a676 100644
 --- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkFullTask.java
 +++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkFullTask.java
 @@ -22,6 +22,9 @@ public final class ChunkFullTask extends ChunkProgressionTask implements Runnabl
